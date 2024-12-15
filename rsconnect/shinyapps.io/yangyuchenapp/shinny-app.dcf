@@ -1,0 +1,12 @@
+name: shinny-app
+title: shinny-app
+username: yangyuchenapp
+account: yangyuchenapp
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13595401
+bundleId: 9524827
+url: https://yangyuchenapp.shinyapps.io/shinny-app/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

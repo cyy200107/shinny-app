@@ -1,0 +1,84 @@
+---
+title: "Final Project"
+date: "2024 Nov 15"
+format: revealjs
+editor: visual
+---
+
+## SIDS Small Island Developing States {.scrollable}
+
+-   Thirty-nine island states in three regions
+
+    -   the Caribbean (CARICOM)\
+    -   the Pacific (PIF)\
+    -   the Atlantic, Indian Ocean and South China Sea (AIS) (IOC)
+
+-   aggregate population 65 million, less than 1% of world population
+
+-   Exclusive Economic Zone (EEZ)—the ocean under their control <br>Average 28 times the country’s land mass
+
+-   unique social, economic, and environmental challenges
+
+    -   remote geography\
+    -   far from international markets\
+    -   higher import and export costs\
+    -   reliance on natural resources from the ocean\
+    -   small population size\
+    -   vulnerability to exogenous economic shocks\
+    -   fragile land and marine ecosystems\
+    -   vulnerable to biodiversity loss and climate change
+
+## Regions and Regional organizations {.scrollable}
+
+[SIDS regions Map](https://www.researchgate.net/figure/Map-of-small-island-developing-states-SIDS-geographical-distribution-of-SIDS_fig1_332076404)
+
+<!-- [CARICOM](https://caricom.org/) -->
+
+[PIF](https://www.forumsec.org/)
+
+[IOC](https://www.commissionoceanindien.org/)
+
+## Resources {.scrollable}
+
+[4th International Conference on SIDS 27-30 MAY, 2024 - ANTIGUA AND BARBUDA](https://sdgs.un.org/smallislands/about-small-island-developing-states)
+
+[International Year of Small island developing States - 2014](https://www.un.org/en/events/islands2014/facts.shtml)
+
+[Small Island Developing States in Numbers](https://wedocs.unep.org/bitstream/handle/20.500.11822/9279/-SIDS%20in%20numbers-2013SIDS_IN_NUMBERS_121813_FA_WEB.pdf)
+
+[Small Island Developing States In Numbers 2020 - Oceans Edition](https://www.un.org/ohrlls/news/small-island-developing-states-numbers-2020-oceans-edition)
+
+[UN Data](https://data.un.org/)
+
+[World Bank Data](https://data.worldbank.org/)
+
+[IMF Data](https://www.imf.org/en/Data)
+
+[Multidimensional Vulnerability Index](https://sdgs.un.org/topics/small-island-developing-states/mvi)
+
+## Assignment {.scrollable}
+
+Due Date: 2024 Dec 16
+
+The purpose of the final assignment is for you to use a range of R capabilities to produce a single well-integrated deliverable which includes a report, a presentation, and a webpage.
+
+You will each be assigned an island state which will be the focus of your work. You will submit two URL's:\
+- a link to your Shiny application - a link to your github which should contain the document (pdf), the presentaion, and the files necessary to produce the report, the presentation slides, and the webpage.
+
+For the presentation, You may select any file type that will display the presentaion when I run the file. I will happily try a test file to make sure you have selected a presentation file type I can use. The Shiny application must be published to a server.
+
+Your presentation should address at least four broad topics:
+
+-   General description of the island state that includes at least a map of the island(s), a map showing where in the world it is located, and Key facts about the island state. Key facts could include a description of the government, the economy, the people who live there, the natural environment, or the history.
+
+-   A projection of at least one key variable by any means you like. Key variables include GDP, population, per capita income, weather, and visitors.
+
+-   Comparison of the Island State relative to other island states in the same region.
+
+-   SWOT (Strength, Weakness, Opportunites, Threats) analysis of the Island State
+
+Your submission should include maps, graphs, images, tables, and narrative. Keep it simple. You will not get extra credit for volume. You will be graded on your ability to use R.
+
+Be sure to include citations for data and information sources you use. Also include citations for help you have recieved from classmates, anyone outside the class, or online (including LLM's).
+
+Please note that I will clone your Github during grading. Be sure the code you submit runs without requiring any alterations.
