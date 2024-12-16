@@ -1,84 +1,225 @@
 ---
-title: "Final Project"
-date: "2024 Nov 15"
-format: revealjs
-editor: visual
+title: "615 Final Project"
+date: "2024 Dec 15"
+Author: "Yangyu CHen"
 ---
 
-## SIDS Small Island Developing States {.scrollable}
+Introduce Trinidad and Tobago is a small, twin-island country in the southern section of the Caribbean, just off the coast of Venezuela. Port of Spain, its capital, and other urban centers include San Fernando and Scarborough. It is home to about 1.4 million people of various ethnic groups, including those of African and Indian descent. It is a unitary parliamentary republic with English as the official language.
 
--   Thirty-nine island states in three regions
+Trinidad and Tobago is among the Caribbean countries with the highest GDP per capita, mainly due to its strong energy industry. The GDP of the country in 2022 was approximately \$25 billion USD, and per capita GDP was \$17,000 USD. The economy depends on the production and export to foreign countries of oil and natural gas, which provide a hefty share of government revenue and foreign exchange earnings. Trinidad and Tobago is the Western Hemisphere’s fourth-largest natural gas exporter. Other key components of GDP are petrochemicals, LNG, fertilizers, and non-energy sectors like tourism, agriculture, and manufacturing.
 
-    -   the Caribbean (CARICOM)\
-    -   the Pacific (PIF)\
-    -   the Atlantic, Indian Ocean and South China Sea (AIS) (IOC)
+Trinidad and Tobago pots boiling with color, Carnival the mood, and calypso and soca the music. On the leisure geographic perspective, it comprises stunning beaches, tropical jungles, and distinctive environments like the Caroni Marsh. Trinidad is bigger and more industrialized, while Tobago is more touristy and laid-back. Trinidad and Tobago is a relatively diversified economy, though global energy prices experience fluctuation, thanks to its established energy infrastructure and position in global markets.
 
--   aggregate population 65 million, less than 1% of world population
+```{r setup, include=FALSE}
+# Load necessary libraries
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(forecast)
 
--   Exclusive Economic Zone (EEZ)—the ocean under their control <br>Average 28 times the country’s land mass
+# Load GDP data
+gdp_data <- read.csv("Trinidad_and_Tobago_GDP_Data__in_Billions_.csv", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+colnames(gdp_data)[1] <- "Year"
+gdp_data$Year <- as.numeric(gdp_data$Year)
+gdp_data$GDP <- as.numeric(gdp_data$GDP..Billion.US..)
+gdp_data <- gdp_data %>% drop_na()
+gdp_data <- gdp_data %>% mutate(GDP_Difference = c(NA, diff(GDP)))
 
--   unique social, economic, and environmental challenges
+# Load comparison data
+comparison_data <- read_excel("Jamaica_Trinidad_Tobago_Comparison_2000_2020 .xlsx", 
+                              sheet = "Jamaica_Trinidad_Tobago_Compari")
+```
 
-    -   remote geography\
-    -   far from international markets\
-    -   higher import and export costs\
-    -   reliance on natural resources from the ocean\
-    -   small population size\
-    -   vulnerability to exogenous economic shocks\
-    -   fragile land and marine ecosystems\
-    -   vulnerable to biodiversity loss and climate change
+1.  GDP Over the Years
 
-## Regions and Regional organizations {.scrollable}
+```{r}
 
-[SIDS regions Map](https://www.researchgate.net/figure/Map-of-small-island-developing-states-SIDS-geographical-distribution-of-SIDS_fig1_332076404)
+ggplot(gdp_data, aes(x = Year, y = GDP)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(color = "red") +
+  labs(
+    title = "GDP of Trinidad and Tobago (Billion US$)",
+    x = "Year",
+    y = "GDP (Billion US$)"
+  ) +
+  theme_minimal()
+```
 
-<!-- [CARICOM](https://caricom.org/) -->
+Analysis: The GDP of Trinidad and Tobago has shown steady growth over the years, with significant increases observed between 2000 and 2010. However, fluctuations after 2014 indicate economic instability, likely due to energy price volatility. Overall, the GDP trend reflects strong economic dependence on the petrochemical and LNG sectors.
 
-[PIF](https://www.forumsec.org/)
+2.  Differenced GDP
 
-[IOC](https://www.commissionoceanindien.org/)
+```{r}
+ggplot(gdp_data, aes(x = Year, y = GDP_Difference)) +
+  geom_line(color = "red", size = 1) +
+  geom_point(color = "blue") +
+  labs(
+    title = "Differenced GDP of Trinidad and Tobago",
+    x = "Year",
+    y = "GDP Difference (Billion US$)"
+  ) +
+  theme_minimal()
+```
 
-## Resources {.scrollable}
+Analysis: The differenced GDP of Trinidad and Tobago highlights periods of sharp economic fluctuations. Notable drops are observed around 1983, 2009, and 2020, corresponding to global economic crises or energy market volatility. These sharp declines indicate the country's vulnerability to external shocks, particularly in the energy sector. The variability suggests a need for economic diversification to mitigate future risks.
 
-[4th International Conference on SIDS 27-30 MAY, 2024 - ANTIGUA AND BARBUDA](https://sdgs.un.org/smallislands/about-small-island-developing-states)
+3.  ACF and PACF Plots
 
-[International Year of Small island developing States - 2014](https://www.un.org/en/events/islands2014/facts.shtml)
+```{r}
+par(mfrow = c(1, 2))
+acf(gdp_data$GDP_Difference, na.action = na.pass, lag.max = 20, main = "ACF of Differenced GDP")
+pacf(gdp_data$GDP_Difference, na.action = na.pass, lag.max = 20, main = "PACF of Differenced GDP")
+par(mfrow = c(1, 1))
 
-[Small Island Developing States in Numbers](https://wedocs.unep.org/bitstream/handle/20.500.11822/9279/-SIDS%20in%20numbers-2013SIDS_IN_NUMBERS_121813_FA_WEB.pdf)
+```
 
-[Small Island Developing States In Numbers 2020 - Oceans Edition](https://www.un.org/ohrlls/news/small-island-developing-states-numbers-2020-oceans-edition)
+Analysis: ACF and PACF show significant spikes at lag 1. The ARIMA(1, 1, 1) model is suggested.
 
-[UN Data](https://data.un.org/)
+4.  ARIMA Forecast
 
-[World Bank Data](https://data.worldbank.org/)
+```{R}
+gdp_ts <- ts(gdp_data$GDP, start = min(gdp_data$Year), frequency = 1)
+arima_model <- auto.arima(gdp_ts)
+gdp_forecast <- forecast(arima_model, h = 15)
+forecast_data <- data.frame(
+  Time = c(time(gdp_ts), time(gdp_forecast$mean)),
+  Value = c(gdp_ts, gdp_forecast$mean),
+  Type = c(rep("Original", length(gdp_ts)), rep("Forecast", length(gdp_forecast$mean)))
+)
+ggplot(forecast_data, aes(x = Time, y = Value, color = Type)) +
+  geom_line(size = 1) +
+  labs(
+    title = "GDP Forecast Using ARIMA",
+    x = "Year",
+    y = "GDP (Billion US$)",
+    color = "Type"
+  ) +
+  theme_minimal()
+```
 
-[IMF Data](https://www.imf.org/en/Data)
+Analysis: Based on forecasts, GDP stabilizes around \$30 billion over 15 years.
 
-[Multidimensional Vulnerability Index](https://sdgs.un.org/topics/small-island-developing-states/mvi)
+GDP Comparison
 
-## Assignment {.scrollable}
+```{R}
+ggplot(comparison_data, aes(x = Year)) +
+  geom_line(aes(y = `Jamaica GDP (Billion USD)`, color = "Jamaica GDP")) +
+  geom_line(aes(y = `Trinidad and Tobago GDP (Billion USD)`, color = "Trinidad & Tobago GDP")) +
+  labs(
+    title = "GDP Comparison: Jamaica vs. Trinidad & Tobago",
+    x = "Year",
+    y = "GDP (Billion USD)",
+    color = "Country"
+  ) +
+  theme_minimal()
+```
 
-Due Date: 2024 Dec 16
+Analysis: The GDP comparison between Jamaica and Trinidad & Tobago reveals significant differences. Trinidad & Tobago experienced rapid economic growth from 2000 to 2010, largely driven by its energy sector. However, after 2014, a decline is observed, likely due to energy price volatility and economic reliance on natural resources. In contrast, Jamaica's GDP shows a steady and consistent growth trend, reflecting a more stable but slower economic development.
 
-The purpose of the final assignment is for you to use a range of R capabilities to produce a single well-integrated deliverable which includes a report, a presentation, and a webpage.
+Population Trends
 
-You will each be assigned an island state which will be the focus of your work. You will submit two URL's:\
-- a link to your Shiny application - a link to your github which should contain the document (pdf), the presentaion, and the files necessary to produce the report, the presentation slides, and the webpage.
+```{r}
+ggplot(comparison_data, aes(x = Year)) +
+  geom_line(aes(y = `Jamaica Population (Million)`, color = "Jamaica Population")) +
+  geom_line(aes(y = `Trinidad and Tobago Population (Million)`, color = "Trinidad & Tobago Population")) +
+  labs(
+    title = "Population Trends: Jamaica vs. Trinidad & Tobago",
+    x = "Year",
+    y = "Population (Million)",
+    color = "Country"
+  ) +
+  theme_minimal()
+```
 
-For the presentation, You may select any file type that will display the presentaion when I run the file. I will happily try a test file to make sure you have selected a presentation file type I can use. The Shiny application must be published to a server.
+Analysis: The GDP comparison between Jamaica and Trinidad & Tobago reveals significant differences. Trinidad & Tobago experienced rapid economic growth from 2000 to 2010, largely driven by its energy sector. However, after 2014, a decline is observed, likely due to energy price volatility and economic reliance on natural resources. In contrast, Jamaica's GDP shows a steady and consistent growth trend, reflecting a more stable but slower economic development.
 
-Your presentation should address at least four broad topics:
+GDP Per Capita Comparison
 
--   General description of the island state that includes at least a map of the island(s), a map showing where in the world it is located, and Key facts about the island state. Key facts could include a description of the government, the economy, the people who live there, the natural environment, or the history.
+```{r}
+ggplot(comparison_data, aes(x = Year)) +
+  geom_line(aes(y = `Jamaica GDP per Capita (USD)`, color = "Jamaica GDP per Capita")) +
+  geom_line(aes(y = `Trinidad and Tobago GDP per Capita (USD)`, color = "Trinidad & Tobago GDP per Capita")) +
+  labs(
+    title = "GDP Per Capita Comparison: Jamaica vs. Trinidad & Tobago",
+    x = "Year",
+    y = "GDP Per Capita (USD)",
+    color = "Country"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("Jamaica GDP per Capita" = "blue", "Trinidad & Tobago GDP per Capita" = "red"))
+```
 
--   A projection of at least one key variable by any means you like. Key variables include GDP, population, per capita income, weather, and visitors.
+Analysis: Trinidad & Tobago's GDP per capita grew faster and remained significantly higher than Jamaica's from 2000 to 2020. The gap widened over time.
 
--   Comparison of the Island State relative to other island states in the same region.
+Population Comparison
 
--   SWOT (Strength, Weakness, Opportunites, Threats) analysis of the Island State
+```{r}
+ggplot(comparison_data, aes(x = Year)) +
+  geom_line(aes(y = `Jamaica Population (Million)`, color = "Jamaica Population")) +
+  geom_line(aes(y = `Trinidad and Tobago Population (Million)`, color = "Trinidad & Tobago Population")) +
+  labs(
+    title = "Population Comparison: Jamaica vs. Trinidad & Tobago",
+    x = "Year",
+    y = "Population (Million)",
+    color = "Country"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("Jamaica Population" = "blue", "Trinidad & Tobago Population" = "red"))
+```
 
-Your submission should include maps, graphs, images, tables, and narrative. Keep it simple. You will not get extra credit for volume. You will be graded on your ability to use R.
+Analysis: Jamaica's population is consistently higher than Trinidad & Tobago's, with both showing steady growth from 2000 to 2020.
 
-Be sure to include citations for data and information sources you use. Also include citations for help you have recieved from classmates, anyone outside the class, or online (including LLM's).
+Life Expectancy Comparison
 
-Please note that I will clone your Github during grading. Be sure the code you submit runs without requiring any alterations.
+```{r}
+ggplot(comparison_data, aes(x = Year)) +
+  geom_line(aes(y = `Jamaica Life Expectancy (Years)`, color = "Jamaica Life Expectancy")) +
+  geom_line(aes(y = `Trinidad and Tobago Life Expectancy (Years)`, color = "Trinidad & Tobago Life Expectancy")) +
+  labs(
+    title = "Life Expectancy Comparison: Jamaica vs. Trinidad & Tobago",
+    x = "Year",
+    y = "Life Expectancy (Years)",
+    color = "Country"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("Jamaica Life Expectancy" = "blue", "Trinidad & Tobago Life Expectancy" = "red"))
+```
+
+Analysis: Jamaica consistently had higher life expectancy than Trinidad & Tobago, with both showing steady improvements from 2000 to 2020.
+
+Homicide Rate Plot
+
+```{r}
+# Plot for Homicide Rate Comparison
+ggplot(comparison_data, aes(x = Year)) +
+  geom_line(aes(y = `Jamaica Homicide Rate (per 100,000)`, color = "Jamaica Homicide Rate"), size = 1) +
+  geom_line(aes(y = `Trinidad and Tobago Homicide Rate (per 100,000)`, color = "Trinidad & Tobago Homicide Rate"), size = 1) +
+  labs(
+    title = "Homicide Rate Comparison (2000-2020)",
+    x = "Year",
+    y = "Homicide Rate (per 100,000)",
+    color = "Country"
+  ) +
+  scale_color_manual(values = c("Jamaica Homicide Rate" = "blue", "Trinidad & Tobago Homicide Rate" = "red")) +
+  theme_minimal()
+```
+
+Analysis: Jamaica's homicide rate is significantly higher and increases steadily, while Trinidad & Tobago's rate remains much lower with gradual growth.
+
+SWOT Analysis of Trinidad and Tobago Strength • Trinidad and Tobago's GDP continues to grow steadily, driven by its strong petrochemical and LNG sectors.
+
+• High GDP per capita compared to other Caribbean nations reflects economic prosperity.
+
+• Significant investments in renewable energy and infrastructure development.
+
+Weakness • Overdependence on energy exports makes the economy vulnerable to price fluctuations.
+
+• An aging population increases healthcare costs and reduces the labor force.
+
+Opportunities • Expanding tourism and agriculture sectors can help diversify the economy.
+
+• Leveraging its strategic location to attract foreign investments and trade opportunities.
+
+Threats • Global warming threatens coastal infrastructure and the tourism industry.
+
+• Declining energy reserves pose long-term economic risks if diversification efforts fail.

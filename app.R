@@ -9,6 +9,8 @@ library(leaflet)
 library(forecast) # For ARIMA modeling and forecasting
 library(readxl) # For reading Excel files
 library(geosphere) # For calculating distances on the map
+library(officer)
+
 
 # Load GDP data
 gdp_data <- read.csv("Trinidad_and_Tobago_GDP_Data__in_Billions_.csv", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
@@ -111,10 +113,15 @@ ui <- navbarPage(
                             uiOutput("gdp_comparison_analysis_text")),
                   
                    
-                   tabPanel("GDP Per Capita", plotOutput("gdp_per_capita_plot")),
-                   tabPanel("Population", plotOutput("population_plot")),
-                   tabPanel("Life Expectancy", plotOutput("life_expectancy_plot")),
-                   tabPanel("Homicide Rate", plotOutput("homicide_rate_plot"))
+                   tabPanel("GDP Per Capita", plotOutput("gdp_per_capita_plot"),
+                            uiOutput("gdp_per_capita")),
+                   tabPanel("Population", plotOutput("population_plot"),
+                            uiOutput("Population")),
+                   
+                   tabPanel("Life Expectancy", plotOutput("life_expectancy_plot"),
+                            uiOutput("Life_expectancy")),
+                   tabPanel("Homicide Rate", plotOutput("homicide_rate_plot"),
+                            uiOutput("Homicide_rate"))
                  )
                )
              )
@@ -289,7 +296,10 @@ server <- function(input, output) {
       scale_color_manual(values = c("Jamaica GDP per Capita" = "blue", "Trinidad & Tobago GDP per Capita" = "red")) +
       theme_minimal()
   })
+  output$gdp_per_capita <- renderUI({
+    HTML("<p><b>Analysis:</b> Trinidad & Tobago's GDP per capita grew faster and remained significantly higher than Jamaica's from 2000 to 2020. The gap widened over time.</p>")
   
+  })
   # Tab 3: Population Plot
   output$population_plot <- renderPlot({
     ggplot(comparison_data, aes(x = Year)) +
@@ -298,6 +308,10 @@ server <- function(input, output) {
       labs(title = "Population Comparison (2000-2020)", x = "Year", y = "Population (Million)") +
       scale_color_manual(values = c("Jamaica Population" = "blue", "Trinidad & Tobago Population" = "red")) +
       theme_minimal()
+  })
+  output$Population <- renderUI({
+    HTML("<p><b>Analysis:</b> Jamaica's population is consistently higher than Trinidad & Tobago's, with both showing steady growth from 2000 to 2020.</p>")
+    
   })
   
   # Tab 3: Life Expectancy Plot
@@ -309,7 +323,10 @@ server <- function(input, output) {
       scale_color_manual(values = c("Jamaica Life Expectancy" = "blue", "Trinidad & Tobago Life Expectancy" = "red")) +
       theme_minimal()
   })
-  
+  output$Life_expectancy <- renderUI({
+    HTML("<p><b>Analysis:</b> Jamaica consistently had higher life expectancy than Trinidad & Tobago, with both showing steady improvements from 2000 to 2020.</p>")
+    
+  })
   # Tab 3: Homicide Rate Plot
   output$homicide_rate_plot <- renderPlot({
     ggplot(comparison_data, aes(x = Year)) +
@@ -319,7 +336,14 @@ server <- function(input, output) {
       scale_color_manual(values = c("Jamaica Homicide Rate" = "blue", "Trinidad & Tobago Homicide Rate" = "red")) +
       theme_minimal()
   })
+  output$Homicide_rate <- renderUI({
+    HTML("<p><b>Analysis:</b> Jamaica's homicide rate is significantly higher and increases steadily, while Trinidad & Tobago's rate remains much lower with gradual growth.</p>")
+    
+  })
 }
+
+
+
 
 # Run the Shiny app
 shinyApp(ui = ui, server = server)
